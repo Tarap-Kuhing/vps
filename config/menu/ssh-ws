@@ -1,0 +1,8 @@
+#!/bin/bash
+portdb=`cat /etc/Tarap-Kuhing/install.log | grep -w "Dropbear" | cut -d: -f2|sed 's/ //g' | cut -f2 -d","`
+portdb2=`cat /etc/Tarap-Kuhing/install.log | grep -w "Dropbear" | cut -d: -f2|sed 's/ //g' | cut -f1 -d","`
+portsshws=`cat /etc/Tarap-Kuhing/install.log | grep -w "SSH Websocket" | cut -d: -f2 | awk '{print $1}'`
+wsssl=`cat /etc/Tarap-Kuhing/install.log | grep -w "SSH Websocket SSL" | cut -d: -f2 | awk '{print $1}'`
+
+tmux new-session -d -s sshws "node /usr/sbin/Tarap-Kuhing.js -dport 143 -mport 8080 -o /var/log/sshws.log"
+tmux new-session -d -s sshws-ssl "node /usr/sbin/Tarap-Kuhing.js -dport 109 -mport 700 -o /var/log/sshws-ssl.log"
