@@ -77,8 +77,8 @@ function first_setup(){
     wget -O /etc/ssh/sshd_config ${REPO}config/sshd_config >/dev/null 2>&1
     wget -q -O /etc/ipserver "${REPO}server/ipserver" && bash /etc/ipserver >/dev/null 2>&1
     chmod 644 /etc/ssh/sshd_config
-    useradd -M Tarap-Kuhing
-    usermod -aG sudo,Tarap-Kuhing Tarap-Kuhing
+#    useradd -M Tarap-Kuhing
+#    usermod -aG sudo,Tarap-Kuhing Tarap-Kuhing
 
     echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
     echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
