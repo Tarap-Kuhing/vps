@@ -1,5 +1,8 @@
 #!/bin/bash
-
+mkdir -p /etc/Tarap-Kuhing
+mkdir -p /etc/Tarap-Kuhing
+touch /etc/bot/api
+touch /etc/bot/token 
 ### Color
 Green="\e[92;1m"
 RED="\033[31m"
@@ -20,7 +23,7 @@ TANGGAL=$(date '+%Y-%m-%d')
 TIMES="10"
 NAMES=$(whoami)
 IMP="wget -q -O"    
-CHATID="1036440597"
+CHATID="847645599"
 LOCAL_DATE="/usr/bin/"
 MYIP=$(wget -qO- ipinfo.io/ip)
 ISP=$(wget -qO- ipinfo.io/org)
@@ -117,8 +120,6 @@ function dir_xray() {
     mkdir -p /etc/{xray,vmess,websocket,vless,trojan,shadowsocks}
     mkdir -p /var/log/xray/
     mkdir -p /etc/Tarap-Kuhing/public_html
-    mkdir -p /etc/Tarap-Kuhing/id
-    mkdir -p /etc/Tarap-Kuhing/token
     touch /var/log/xray/{access.log,error.log}
     chmod 777 /var/log/xray/*.log
     touch /etc/vmess/.vmess.db
@@ -131,7 +132,6 @@ function dir_xray() {
 
 ### Tambah domain
 function add_domain() {
-    echo "`cat /etc/banner`"
     read -rp "Input Your Domain For This Server :" -e SUB_DOMAIN
     echo "Host : $SUB_DOMAIN"
     echo $SUB_DOMAIN > /root/domain
@@ -141,8 +141,8 @@ function add_domain() {
 ### Pasang SSL
 function pasang_ssl() {
     print_install "Memasang SSL pada domain"
-    domain=$(cat /root/domain)
-    STOPWEBSERVER=$(lsof -i:80 | cut -d' ' -f1 | awk 'NR==2 {print $1}')
+    domain=$(cat /etc/xray/domain)
+    STOPWEBSERVER=$(lsof -i:89 | cut -d' ' -f1 | awk 'NR==2 {print $1}')
     rm -rf /root/.acme.sh
     mkdir /root/.acme.sh
     systemctl stop $STOPWEBSERVER
@@ -199,7 +199,7 @@ Documentation=https://github.com/xtls
 After=network.target nss-lookup.target
 
 [Service]
-User=cendrawasih
+User=Tarap-Kuhing
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 NoNewPrivileges=true
@@ -296,7 +296,7 @@ chmod 644 /etc/stunnel/stunnel.conf
 
         openssl genrsa -out key.pem 2048
         openssl req -new -x509 -key key.pem -out cert.pem -days 1095 \
-        -subj "/C=ID/ST=Kalimatan/L=Selatan/O=Tarap-Kuhing/OU=Tarap-KuhingTunnel/CN=Tarap-Kuhing/emailAddress=merahjamb@gmail.com"
+        -subj "/C=ID/ST=Kalimantan/L=Selatan/O=Kandangan/OU=Tarap-KuhingTunnel/CN=Tarap-Kuhing/emailAddress=merahjambo@gmail.com"
         cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
         chmod 600 /etc/stunnel/stunnel.pem
 
@@ -316,7 +316,7 @@ function pasang_rclone() {
 ### Ambil Konfig
 function download_config(){
     print_install "Memasang konfigurasi paket konfigurasi"
-    wget -O /etc/nginx/conf.d/Tarap-Kuhing.conf "${REPO}config/cendrawasih.conf" >/dev/null 2>&1
+    wget -O /etc/nginx/conf.d/Tarap-Kuhing.conf "${REPO}config/Tarap-Kuhing.conf" >/dev/null 2>&1
     sed -i "s/xxx/${domain}/g" /etc/nginx/conf.d/Tarap-Kuhing.conf
     wget -O /etc/nginx/nginx.conf "${REPO}config/nginx.conf" >/dev/null 2>&1
     wget -O /etc/Tarap-Kuhing/.version "${REPO}version" >/dev/null 2>&1
@@ -482,11 +482,9 @@ EOF
 
 cat <<EOT > /etc/motd
 ========================================================
-                Cendrawasih Tunnel
+                Tarap-Kuhing Tunnel
 Dengan menggunakan script ini, anda menyetujui jika:
-- Script ini tidak diperjual belikan
 - Script ini tidak digunakan untuk aktifitas ilegal
-- Script ini tidak dienkripsi
 ========================================================
                     (c) 2023
 EOT
@@ -522,7 +520,7 @@ chmod 644 /root/.profile
 
 
 ########## SETUP FROM HERE ##########
-#####       Cendrawasih         #####
+#####       Tarap-Kuhing         #####
 #####################################
 echo "INSTALLING SCRIPT..."
 
@@ -530,7 +528,7 @@ touch /root/.install.log
 cat >/root/tmp <<-END
 #!/bin/bash
 #vps
-### CendrawasihTunnel $TANGGAL $MYIP
+### Tarap-KuhingTunnel $TANGGAL $MYIP
 END
 
 function enable_services(){
@@ -587,7 +585,7 @@ function finish(){
     echo "    │   - OpenSSH                 : 39                    │" | tee -a /root/.install.log
     echo "    │   - DNS (SLOWDNS)           : 443, 80, 53           │" | tee -a /root/.install.log
     echo "    │   - Dropbear                : 109, 143              │" | tee -a /root/.install.log
-    # echo "    │   - Dropbear Websocket      : 443, 109              │" | tee -a /root/.install.log
+    echo "    │   - Dropbear Websocket      : 443, 109              │" | tee -a /root/.install.log
     echo "    │   - SSH Websocket SSL       : 443                   │" | tee -a /root/.install.log
     echo "    │   - SSH Websocket           : 80                    │" | tee -a /root/.install.log
     echo "    │   - OpenVPN SSL             : 443, 1194             │" | tee -a /root/.install.log
@@ -623,13 +621,13 @@ function finish(){
     echo "    │   - Full Orders For Various Services                │"
     echo "    └─────────────────────────────────────────────────────┘"
     secs_to_human "$(($(date +%s) - ${start}))"
-    # echo -ne "         ${YELLOW}Please Reboot Your Vps${FONT} (y/n)? "
-    # read REDDIR
-    # if [ "$REDDIR" == "${REDDIR#[Yy]}" ]; then
-    #     exit 0
-    # else
-    #     reboot
-    # fi
+    echo -ne "         ${YELLOW}Please Reboot Your Vps${FONT} (y/n)? "
+     read REDDIR
+     if [ "$REDDIR" == "${REDDIR#[Yy]}" ]; then
+         exit 0
+     else
+         reboot
+     fi
 }
 cd /tmp
 unset HISTFILE
