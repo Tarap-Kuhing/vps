@@ -1,5 +1,8 @@
 #!/bin/bash
 clear
+CHATID=`cat /etc/Tarap-Kuhing/id`
+KEY=`cat /etc/Tarap-Kuhing/token`
+URL="https://api.telegram.org/bot$KEY/sendMessage"
 echo -e "\033[0;33m ┌──────────────────────────────────────────┐\033[0m"
 echo -e "\033[0;33m │\033[0m            \033[0;32mPORT SERVICE INFO\033[0m             \033[0;33m|\033[0m"
 echo -e "\033[0;33m └──────────────────────────────────────────┘\033[0m"

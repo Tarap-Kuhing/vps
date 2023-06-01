@@ -216,6 +216,10 @@ case $menu in
 15)
     autokill
     ;;
+
+16)
+    bot
+    ;;
 *)
     menu
     ;;

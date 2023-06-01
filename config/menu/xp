@@ -1,8 +1,5 @@
 #!/bin/bash
 red() { echo -e "\\033[32;1m${*}\\033[0m"; }
-CHATID=`cat /etc/Tarap-Kuhing/id`
-KEY=`cat /etc/Tarap-Kuhing/token`
-URL="https://api.telegram.org/bot$KEY/sendMessage"
 clear
 ##----- Auto Remove Vmess
 data=($(cat /etc/xray/config.json | grep '^#?#' | cut -d ' ' -f 2 | sort | uniq))

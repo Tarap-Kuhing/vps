@@ -94,20 +94,20 @@ VMESS_GRPC=`cat<<EOF
       "tls": "tls"
 }
 EOF`
-VMESS_OPOK=`cat<<EOF
-      {
-      "v": "2",
-      "ps": "${user}",
-      "add": "${domain}",
-      "port": "80",
-      "id": "${uuid}",
-      "aid": "0",
+VMESS_OPOK=`cat<<EOF  
+      { 
+      "v": "2", 
+      "ps": "${user}",  
+      "add": "${domain}", 
+      "port": "80", 
+      "id": "${uuid}",  
+      "aid": "0", 
       "net": "ws",
       "path": "http://tsel.me/worryfree",
-      "type": "none",
-      "host": "tsel.me",
-      "tls": "none"
-}
+      "type": "none", 
+      "host": "tsel.me",  
+      "tls": "none" 
+} 
 EOF`
 cat >/etc/Tarap-Kuhing/public_html/vmess-$user.txt <<-END
 ====================================================================
@@ -235,16 +235,16 @@ TEXT="
 <code>Path Dynamic : CF-XRAY:http://bug.com</code>
 <code>ServiceName  : vmess-grpc</code>
 <code>───────────────────────────</code>
-<code>Link TLS     :</code>
+<code>Link TLS     :</code> 
 <code>${vmesslink1}</code>
 <code>───────────────────────────</code>
-<code>Link NTLS    :</code>
+<code>Link NTLS    :</code> 
 <code>${vmesslink2}</code>
 <code>───────────────────────────</code>
-<code>Link GRPC    :</code>
+<code>Link GRPC    :</code> 
 <code>${vmesslink3}</code>
 <code>───────────────────────────</code>
-<code>Link Opok    :</code>
+<code>Link Opok    :</code> 
 <code>${vmesslink4}</code>
 <code>───────────────────────────</code>
 <code>Format OpenClash :</code> http://${domain}:81/vmess-$user.txt
@@ -293,8 +293,8 @@ echo -e "User ID      : ${uuid}" | tee -a /etc/Tarap-Kuhing/user.log
 echo -e "AlterId      : 0" | tee -a /etc/Tarap-Kuhing/user.log
 echo -e "Security     : auto" | tee -a /etc/Tarap-Kuhing/user.log
 echo -e "Network      : WS or gRPC" | tee -a /etc/Tarap-Kuhing/user.log
-echo -e "Path TLS     : (/multi path) " | tee -a /etc/Tarap-Kuhing/user.log
-echo -e "Path NLS     : (/multi path) " | tee -a /etc/Tarap-Kuhing/user.log
+echo -e "Path TLS     : (/multi path)/vmess " | tee -a /etc/Tarap-Kuhing/user.log
+echo -e "Path NLS     : (/multi path)/vmess " | tee -a /etc/Tarap-Kuhing/user.log
 echo -e "Path Dynamic : CF-XRAY:http://bug.com " | tee -a /etc/Tarap-Kuhing/user.log
 echo -e "ServiceName  : vmess-grpc" | tee -a /etc/Tarap-Kuhing/user.log
 echo -e "\033[1;93m───────────────────────────\033[0m" | tee -a /etc/Tarap-Kuhing/user.log

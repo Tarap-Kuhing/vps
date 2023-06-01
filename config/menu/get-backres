@@ -27,8 +27,9 @@ NC='\033[0m'
 function BACKUPVPS() {
 mkdir -p /var/www/html/Tarap-Kuhing >/dev/null 2>&1
 cp -r /etc/xray/config.json  config.json >/dev/null 2>&1
-zip config.json vps-backup.zip >/dev/null 2>&1
-mv *.zip /var/www/html/Tarap-Kuhing >/dev/null 2>&1
+zip -r config.json vps-backup.zip >/dev/null 2>&1
+zip -r vps-backup.zip /var/www/html/Tarap-Kuhing >/dev/null 2>&1
+LINK=/var/www/html/Tarap-Kuhing >/dev/null 2>&1
 systemctl restart backup >/dev/null 2>&1
 clear
 echo -e "\033[1;93m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m" | tee -a /etc/Tarap-Kuhing/user.log
@@ -73,9 +74,9 @@ echo -e "${RED}This feature can only be used if the previous data backup uses th
 function QUESTION() {
 clear
 echo -e ""
-echo -e "${RED}WARNING !!!${NC}"
+echo -e "${RED}WARNING !!!${NC}" 
 echo -e ""
-echo -e "${RED}If you haven't uploaded your file, the VPN will not connect${NC}"
+echo -e "${RED}If you haven't uploaded your file, the VPN will not connect${NC}" 
 echo -e "${BLUE}if you have uploaded the file, please type yes${NC}"
 echo -e "${BLUE}if you haven't uploaded the file, please type not${NC}"
 read -p "Have you uploaded the backup file? yes/not :" NUM_MENU
@@ -116,7 +117,7 @@ echo -e ""
     ;;
     *)
         echo -e "${Red}You wrong command !${Font}"
-        sleep 5
+        sleep 5 
         menu
     ;;
 esac

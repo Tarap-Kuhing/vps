@@ -23,16 +23,13 @@ MYIP=$(curl -sS ipv4.icanhazip.com)
 LAST_DOMAIN="$(cat /etc/xray/domain)"
 NS="$(cat /etc/xray/dns)"
 red() { echo -e "\\033[32;1m${*}\\033[0m"; }
-CHATID=`cat /etc/Tarap-Kuhing/id`
-KEY=`cat /etc/Tarap-Kuhing/token`
-URL="https://api.telegram.org/bot$KEY/sendMessage"
 
 function get_acme_domain() {
 
     echo -e "${GREEN}--->${NC}     Start "
     systemctl stop nginx
     systemctl stop haproxy
-    STOPWEBSERVER=$(lsof -i:80 | cut -d' ' -f1 | awk 'NR==2 {print $1}')
+    STOPWEBSERVER=$(lsof -i:89 | cut -d' ' -f1 | awk 'NR==2 {print $1}')
     systemctl stop $STOPWEBSERVER
     echo -e "${GREEN}--->${NC}     Starting renew cert "
     sleep 2

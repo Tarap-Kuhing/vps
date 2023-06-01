@@ -8,11 +8,11 @@
 # //====================================================
 # // font color configuration | TARAP KUHING AUTOSCRIPT
 red() { echo -e "\\033[32;1m${*}\\033[0m"; }
-clear
-NUMBER_OF_CLIENTS=$(grep -c -E "^#?# " "/etc/xray/config.json")
 CHATID=`cat /etc/Tarap-Kuhing/id`
 KEY=`cat /etc/Tarap-Kuhing/token`
 URL="https://api.telegram.org/bot$KEY/sendMessage"
+clear
+NUMBER_OF_CLIENTS=$(grep -c -E "^#?# " "/etc/xray/config.json")
 if [[ ${NUMBER_OF_CLIENTS} == '0' ]]; then
     clear
     echo -e "\033[1;93m─────────────────────────────────────────\033[0m"

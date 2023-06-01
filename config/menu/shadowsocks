@@ -7,9 +7,6 @@
 # //  telegram: https://t.me/Baumg2012
 # //====================================================
 # // font color configuration | TARAP KUHING AUTOSCRIPT
-CHATID=`cat /etc/Tarap-Kuhing/id`
-KEY=`cat /etc/Tarap-Kuhing/token`
-URL="https://api.telegram.org/bot$KEY/sendMessage"
 clear
 grenbo="\e[92;1m"
 NC='\033[0m'
