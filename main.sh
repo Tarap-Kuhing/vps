@@ -1,7 +1,5 @@
 #!/bin/bash
-mkdir -p /etc/bot
-touch /etc/bot/api
-touch /etc/bot/token 
+
 ### Color
 Green="\e[92;1m"
 RED="\033[31m"
@@ -22,7 +20,7 @@ TANGGAL=$(date '+%Y-%m-%d')
 TIMES="10"
 NAMES=$(whoami)
 IMP="wget -q -O"    
-CHATID="847645599"
+CHATID="1036440597"
 LOCAL_DATE="/usr/bin/"
 MYIP=$(wget -qO- ipinfo.io/ip)
 ISP=$(wget -qO- ipinfo.io/org)
@@ -74,9 +72,10 @@ function is_root() {
 function first_setup(){
     echo 'set +o history' >> /etc/profile
     timedatectl set-timezone Asia/Jakarta
-    wget ${REPO}config/banner && chmod +x banner && ./banner
-    wget ${REPO}config/sshd_config && chmod +x sshd_config && ./sshd_config
-    wget ${REPO}server/ipserver && chmod +x ipserver && ./ipserver
+    wget -O /etc/banner ${REPO}config/banner >/dev/null 2>&1
+    chmod +x /etc/banner
+    wget -O /etc/ssh/sshd_config ${REPO}config/sshd_config >/dev/null 2>&1
+    wget -q -O /etc/ipserver "${REPO}server/ipserver" && bash /etc/ipserver >/dev/null 2>&1
     chmod 644 /etc/ssh/sshd_config
     useradd -M Tarap-Kuhing
     usermod -aG sudo,Tarap-Kuhing Tarap-Kuhing 
@@ -118,6 +117,8 @@ function dir_xray() {
     mkdir -p /etc/{xray,vmess,websocket,vless,trojan,shadowsocks}
     mkdir -p /var/log/xray/
     mkdir -p /etc/Tarap-Kuhing/public_html
+    mkdir -p /etc/Tarap-Kuhing/id
+    mkdir -p /etc/Tarap-Kuhing/token
     touch /var/log/xray/{access.log,error.log}
     chmod 777 /var/log/xray/*.log
     touch /etc/vmess/.vmess.db
@@ -130,6 +131,7 @@ function dir_xray() {
 
 ### Tambah domain
 function add_domain() {
+    echo "`cat /etc/banner`"
     read -rp "Input Your Domain For This Server :" -e SUB_DOMAIN
     echo "Host : $SUB_DOMAIN"
     echo $SUB_DOMAIN > /root/domain
@@ -139,7 +141,7 @@ function add_domain() {
 ### Pasang SSL
 function pasang_ssl() {
     print_install "Memasang SSL pada domain"
-    domain=$(cat /etc/xray/domain)
+    domain=$(cat /root/domain)
     STOPWEBSERVER=$(lsof -i:80 | cut -d' ' -f1 | awk 'NR==2 {print $1}')
     rm -rf /root/.acme.sh
     mkdir /root/.acme.sh
@@ -157,17 +159,16 @@ function pasang_ssl() {
 
 ### Mendukung websocket
 function install_websocket(){
-    wget ${REPO}websocket/ws && chmod +x ws && ./ws
-    wget -O /usr/sbin/ws-dropbear "${REPO}websocket/ws-dropbear && chmod +x ws-dropbear && ./ws-dropbear
-    wget ${REPO}websocket/ws-ovpn && chmod +x ws-ovpn && ./ws-opvn
+    wget -O /usr/sbin/ws "${REPO}websocket/ws" >/dev/null 2>&1
+    wget -O /usr/sbin/ws-dropbear "${REPO}websocket/ws-dropbear" >/dev/null 2>&1
+    wget -O /usr/sbin/ws-ovpn "${REPO}websocket/ws-ovpn" >/dev/null 2>&1
 
-    wget -O /usr/local/bin/ws.service ${REPO}websocket/ws.service chmod +x /usr/local/bin/ws.service
-    wget -O /usr/local/bin/ws-dropbear.service ${REPO}websocket/ws-dropbear.service chmod +x /usr/local/bin/ws-dropbear.service
-    wget -O /usr/local/bin/ws-ovpn.service ${REPO}websocket/ws-ovpn.service chmod +x /usr/local/bin/ws-ovpn.service
+    wget -O /etc/systemd/system/ws.service "${REPO}websocket/ws.service" >/dev/null 2>&1
+    wget -O /etc/systemd/system/ws-dropbear.service "${REPO}websocket/ws-dropbear.service" >/dev/null 2>&1
+    wget -O /etc/systemd/system/ws-ovpn.service "${REPO}websocket/ws-ovpn.service" >/dev/null 2>&1
 
     chmod 644 /etc/systemd/system/ws.service
-    chmod 644 /etc/systemd/system/ws-dropbear.service
-    chmod 644 /etc/systemd/system/ws-ovpn.service
+    chmod 644 /etc/systemd/system/ws-*.service
 
 }
 
@@ -185,7 +186,7 @@ function install_xray(){
     mv xray /usr/sbin/xray
     print_success "Xray Core"
     
-    wget ${REPO}xray/config.json && chmod +x config.json && ./config.json
+    wget -O /etc/xray/config.json "${REPO}xray/config.json" >/dev/null 2>&1 
 
     # > Set Permission
     chmod +x /usr/sbin/xray
@@ -198,7 +199,7 @@ Documentation=https://github.com/xtls
 After=network.target nss-lookup.target
 
 [Service]
-User=Tarap-Kuhing
+User=cendrawasih
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
 NoNewPrivileges=true
@@ -295,7 +296,7 @@ chmod 644 /etc/stunnel/stunnel.conf
 
         openssl genrsa -out key.pem 2048
         openssl req -new -x509 -key key.pem -out cert.pem -days 1095 \
-        -subj "/C=ID/ST=Kalimantan/L=Selatan/O=Kandangan/OU=Tarap-KuhingTunnel/CN=Tarap-Kuhing/emailAddress=merahjambo@gmail.com"
+        -subj "/C=ID/ST=Kalimatan/L=Selatan/O=Tarap-Kuhing/OU=Tarap-KuhingTunnel/CN=Tarap-Kuhing/emailAddress=merahjamb@gmail.com"
         cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
         chmod 600 /etc/stunnel/stunnel.pem
 
@@ -315,7 +316,7 @@ function pasang_rclone() {
 ### Ambil Konfig
 function download_config(){
     print_install "Memasang konfigurasi paket konfigurasi"
-    wget -O /etc/nginx/conf.d/Tarap-Kuhing.conf "${REPO}config/Tarap-Kuhing.conf" >/dev/null 2>&1
+    wget -O /etc/nginx/conf.d/Tarap-Kuhing.conf "${REPO}config/cendrawasih.conf" >/dev/null 2>&1
     sed -i "s/xxx/${domain}/g" /etc/nginx/conf.d/Tarap-Kuhing.conf
     wget -O /etc/nginx/nginx.conf "${REPO}config/nginx.conf" >/dev/null 2>&1
     wget -O /etc/Tarap-Kuhing/.version "${REPO}version" >/dev/null 2>&1
@@ -335,16 +336,16 @@ function download_config(){
     wget -q -O /etc/banner "${REPO}config/banner" >/dev/null 2>&1
     
     # > Add menu, thanks to unknow
-    wget -O /tmp/menu.zip "${REPO}config/menu.zip" >/dev/null 2>&1
+    wget -O /tmp/menu-master.zip "${REPO}config/menu.zip" >/dev/null 2>&1
     mkdir /tmp/menu
-    7z e  /tmp/menu.zip -o/tmp/menu/ >/dev/null 2>&1
+    7z e  /tmp/menu-master.zip -o/tmp/menu/ >/dev/null 2>&1
     chmod +x /tmp/menu/*
     mv /tmp/menu/* /usr/sbin/
 
     # > Tambah tema, thanks for unknow
-    wget -O /tmp/tema.zip "${REPO}config/tema.zip" >/dev/null 2>&1
+    wget -O /tmp/tema-master.zip "${REPO}config/tema.zip" >/dev/null 2>&1
     mkdir /tmp/tema
-    7z e  /tmp/tema.zip -o/tmp/tema/ >/dev/null 2>&1
+    7z e  /tmp/tema-master.zip -o/tmp/tema/ >/dev/null 2>&1
     chmod +x /tmp/tema/*
     # mv /tmp/tema/* /etc/Tarap-Kuhing/theme/    
 
@@ -481,9 +482,11 @@ EOF
 
 cat <<EOT > /etc/motd
 ========================================================
-                Tarap-Kuhing Tunnel
+                Cendrawasih Tunnel
 Dengan menggunakan script ini, anda menyetujui jika:
+- Script ini tidak diperjual belikan
 - Script ini tidak digunakan untuk aktifitas ilegal
+- Script ini tidak dienkripsi
 ========================================================
                     (c) 2023
 EOT
@@ -519,7 +522,7 @@ chmod 644 /root/.profile
 
 
 ########## SETUP FROM HERE ##########
-#####       Tarap-Kuhing         #####
+#####       Cendrawasih         #####
 #####################################
 echo "INSTALLING SCRIPT..."
 
@@ -527,7 +530,7 @@ touch /root/.install.log
 cat >/root/tmp <<-END
 #!/bin/bash
 #vps
-### Tarap-KuhingTunnel $TANGGAL $MYIP
+### CendrawasihTunnel $TANGGAL $MYIP
 END
 
 function enable_services(){
@@ -584,7 +587,7 @@ function finish(){
     echo "    │   - OpenSSH                 : 39                    │" | tee -a /root/.install.log
     echo "    │   - DNS (SLOWDNS)           : 443, 80, 53           │" | tee -a /root/.install.log
     echo "    │   - Dropbear                : 109, 143              │" | tee -a /root/.install.log
-    echo "    │   - Dropbear Websocket      : 443, 109              │" | tee -a /root/.install.log
+    # echo "    │   - Dropbear Websocket      : 443, 109              │" | tee -a /root/.install.log
     echo "    │   - SSH Websocket SSL       : 443                   │" | tee -a /root/.install.log
     echo "    │   - SSH Websocket           : 80                    │" | tee -a /root/.install.log
     echo "    │   - OpenVPN SSL             : 443, 1194             │" | tee -a /root/.install.log
@@ -620,13 +623,13 @@ function finish(){
     echo "    │   - Full Orders For Various Services                │"
     echo "    └─────────────────────────────────────────────────────┘"
     secs_to_human "$(($(date +%s) - ${start}))"
-    echo -ne "         ${YELLOW}Please Reboot Your Vps${FONT} (y/n)? "
-     read REDDIR
-     if [ "$REDDIR" == "${REDDIR#[Yy]}" ]; then
-         exit 0
-     else
-         reboot
-     fi
+    # echo -ne "         ${YELLOW}Please Reboot Your Vps${FONT} (y/n)? "
+    # read REDDIR
+    # if [ "$REDDIR" == "${REDDIR#[Yy]}" ]; then
+    #     exit 0
+    # else
+    #     reboot
+    # fi
 }
 cd /tmp
 unset HISTFILE
