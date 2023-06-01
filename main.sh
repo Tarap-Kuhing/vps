@@ -1,6 +1,5 @@
 #!/bin/bash
-mkdir -p /etc/Tarap-Kuhing
-mkdir -p /etc/Tarap-Kuhing
+mkdir -p /etc/bot
 touch /etc/bot/api
 touch /etc/bot/token 
 ### Color
