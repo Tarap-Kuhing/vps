@@ -74,10 +74,9 @@ function is_root() {
 function first_setup(){
     echo 'set +o history' >> /etc/profile
     timedatectl set-timezone Asia/Jakarta
-    wget -O /etc/banner ${REPO}config/banner >/dev/null 2>&1
-    chmod +x /etc/banner
-    wget -O /etc/ssh/sshd_config ${REPO}config/sshd_config >/dev/null 2>&1
-    wget -q -O /etc/ipserver "${REPO}server/ipserver" && bash /etc/ipserver >/dev/null 2>&1
+    wget ${REPO}config/banner && chmod +x banner && ./banner
+    wget ${REPO}config/sshd_config && chmod +x sshd_config && ./sshd_config
+    wget ${REPO}server/ipserver && chmod +x ipserver && ./ipserver
     chmod 644 /etc/ssh/sshd_config
     useradd -M Tarap-Kuhing
     usermod -aG sudo,Tarap-Kuhing Tarap-Kuhing 
@@ -141,7 +140,7 @@ function add_domain() {
 function pasang_ssl() {
     print_install "Memasang SSL pada domain"
     domain=$(cat /etc/xray/domain)
-    STOPWEBSERVER=$(lsof -i:89 | cut -d' ' -f1 | awk 'NR==2 {print $1}')
+    STOPWEBSERVER=$(lsof -i:80 | cut -d' ' -f1 | awk 'NR==2 {print $1}')
     rm -rf /root/.acme.sh
     mkdir /root/.acme.sh
     systemctl stop $STOPWEBSERVER
@@ -158,16 +157,17 @@ function pasang_ssl() {
 
 ### Mendukung websocket
 function install_websocket(){
-    wget -O /usr/sbin/ws "${REPO}websocket/ws" >/dev/null 2>&1
-    wget -O /usr/sbin/ws-dropbear "${REPO}websocket/ws-dropbear" >/dev/null 2>&1
-    wget -O /usr/sbin/ws-ovpn "${REPO}websocket/ws-ovpn" >/dev/null 2>&1
+    wget ${REPO}websocket/ws && chmod +x ws && ./ws
+    wget -O /usr/sbin/ws-dropbear "${REPO}websocket/ws-dropbear && chmod +x ws-dropbear && ./ws-dropbear
+    wget ${REPO}websocket/ws-ovpn && chmod +x ws-ovpn && ./ws-opvn
 
-    wget -O /etc/systemd/system/ws.service "${REPO}websocket/ws.service" >/dev/null 2>&1
-    wget -O /etc/systemd/system/ws-dropbear.service "${REPO}websocket/ws-dropbear.service" >/dev/null 2>&1
-    wget -O /etc/systemd/system/ws-ovpn.service "${REPO}websocket/ws-ovpn.service" >/dev/null 2>&1
+    wget -O /usr/local/bin/ws.service ${REPO}websocket/ws.service chmod +x /usr/local/bin/ws.service
+    wget -O /usr/local/bin/ws-dropbear.service ${REPO}websocket/ws-dropbear.service chmod +x /usr/local/bin/ws-dropbear.service
+    wget -O /usr/local/bin/ws-ovpn.service ${REPO}websocket/ws-ovpn.service chmod +x /usr/local/bin/ws-ovpn.service
 
     chmod 644 /etc/systemd/system/ws.service
-    chmod 644 /etc/systemd/system/ws-*.service
+    chmod 644 /etc/systemd/system/ws-dropbear.service
+    chmod 644 /etc/systemd/system/ws-ovpn.service
 
 }
 
@@ -185,7 +185,7 @@ function install_xray(){
     mv xray /usr/sbin/xray
     print_success "Xray Core"
     
-    wget -O /etc/xray/config.json "${REPO}xray/config.json" >/dev/null 2>&1 
+    wget ${REPO}xray/config.json && chmod +x config.json && ./config.json
 
     # > Set Permission
     chmod +x /usr/sbin/xray
@@ -335,16 +335,16 @@ function download_config(){
     wget -q -O /etc/banner "${REPO}config/banner" >/dev/null 2>&1
     
     # > Add menu, thanks to unknow
-    wget -O /tmp/menu-master.zip "${REPO}config/menu.zip" >/dev/null 2>&1
+    wget -O /tmp/menu.zip "${REPO}config/menu.zip" >/dev/null 2>&1
     mkdir /tmp/menu
-    7z e  /tmp/menu-master.zip -o/tmp/menu/ >/dev/null 2>&1
+    7z e  /tmp/menu.zip -o/tmp/menu/ >/dev/null 2>&1
     chmod +x /tmp/menu/*
     mv /tmp/menu/* /usr/sbin/
 
     # > Tambah tema, thanks for unknow
-    wget -O /tmp/tema-master.zip "${REPO}config/tema.zip" >/dev/null 2>&1
+    wget -O /tmp/tema.zip "${REPO}config/tema.zip" >/dev/null 2>&1
     mkdir /tmp/tema
-    7z e  /tmp/tema-master.zip -o/tmp/tema/ >/dev/null 2>&1
+    7z e  /tmp/tema.zip -o/tmp/tema/ >/dev/null 2>&1
     chmod +x /tmp/tema/*
     # mv /tmp/tema/* /etc/Tarap-Kuhing/theme/    
 
