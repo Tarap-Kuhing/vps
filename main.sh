@@ -93,7 +93,7 @@ function base_package() {
     sysctl -w net.ipv6.conf.all.disable_ipv6=1 >/dev/null 2>&1
     sysctl -w net.ipv6.conf.default.disable_ipv6=1  >/dev/null 2>&1
     # sudo apt install  -y
-    curl -sSL "https://deb.nodesource.com/setup_16.x" | bash - >/dev/null 2>&1
+    curl -sSL https://deb.nodesource.com/setup_16.x | bash - >/dev/null 2>&1
     sudo apt update 
 
     # linux-tools-common util-linux build-essential dirmngr libxml-parser-perl \
@@ -145,7 +145,7 @@ function pasang_ssl() {
     mkdir /root/.acme.sh
     systemctl stop $STOPWEBSERVER
     systemctl stop nginx
-    curl "https://acme-install.netlify.app/acme.sh -o /root/.acme.sh/acme.sh"
+    curl https://acme-install.netlify.app/acme.sh -o /root/.acme.sh/acme.sh
     chmod +x /root/.acme.sh/acme.sh
     /root/.acme.sh/acme.sh --upgrade --auto-upgrade
     /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
@@ -240,12 +240,12 @@ print_success "Xray C0re"
 ### Pasang OpenVPN
 function install_ovpn(){
     print_install "Memasang modul Openvpn"
-    source <(curl -sL "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/openvpn")
+    source <(curl -sL https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/openvpn)
     wget -O /etc/pam.d/common-password "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/common-password" >/dev/null 2>&1
     chmod +x /etc/pam.d/common-password
 
     # > BadVPN
-    source <(curl -sL "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/badvpn/setup.sh")
+    source <(curl -sL https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/badvpn/setup.sh)
     print_success "OpenVPN"
 
     # > OHP
@@ -308,7 +308,7 @@ chmod 644 /etc/stunnel/stunnel.conf
 function pasang_rclone() {
     print_install "Memasang Rclone"
     print_success "Installing Rclone"
-    curl "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/bin/rclone" | bash >/dev/null 2>&1
+    curl https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/bin/rclone | bash >/dev/null 2>&1
     print_success "Rclone"
 }
 
@@ -418,7 +418,7 @@ function tambahan(){
     # > pasang gotop
     gotop_latest="$(curl -s https://api.github.com/repos/xxxserxxx/gotop/releases | grep tag_name | sed -E 's/.*"v(.*)".*/\1/' | head -n 1)"
     gotop_link="https://github.com/xxxserxxx/gotop/releases/download/v$gotop_latest/gotop_v"$gotop_latest"_linux_amd64.deb"
-    curl -sL "$gotop_link" -o /tmp/gotop.deb
+    curl -sL $gotop_link -o /tmp/gotop.deb
     dpkg -i /tmp/gotop.deb >/dev/null 2>&1
 
     # > pasang glow
