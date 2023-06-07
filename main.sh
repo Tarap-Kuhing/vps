@@ -114,9 +114,11 @@ clear
 ### Buat direktori xray
 function dir_xray() {
     print_install "Membuat direktori xray"
-    mkdir -p /etc/{xray,vmess,websocket,vless,trojan,shadowsocks}
+    mkdir - /etc/xray
+    mkdir -p /etc/{vmess,websocket,vless,trojan,shadowsocks}
     mkdir -p /var/log/xray/
     mkdir -p /etc/Tarap-Kuhing/public_html
+    touch /etc/xray/domain
     touch /var/log/xray/{access.log,error.log}
     chmod 777 /var/log/xray/*.log
     touch /etc/vmess/.vmess.db
@@ -157,38 +159,27 @@ function pasang_ssl() {
 
 ### Mendukung websocket
 function install_websocket(){
-    wget -O /usr/sbin/ws "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws" >/dev/null 2>&1
-    wget -O /usr/sbin/ws-dropbear "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws-dropbear" >/dev/null 2>&1
-    wget -O /usr/sbin/ws-ovpn "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws-ovpn" >/dev/null 2>&1
-
-    wget -O /etc/systemd/system/ws.service "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws.service" >/dev/null 2>&1
-    wget -O /etc/systemd/system/ws-dropbear.service "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws-dropbear.service" >/dev/null 2>&1
-    wget -O /etc/systemd/system/ws-ovpn.service "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws-ovpn.service" >/dev/null 2>&1
-
-    chmod 644 /etc/systemd/system/ws.service
-    chmod 644 /etc/systemd/system/ws-dropbear.service
-    chmod 644 /etc/systemd/system/ws-ovpn.service
+    wget https://raw.githubusercontent.com/Tarap-Kuhing/tarap/main/sshws/insshws.sh && chmod +x insshws.sh && ./insshws.sh >/dev/null 2>&1
 
 }
 
 ### Install Xray
 function install_xray(){
-    domainSock_dir="/run/xray";! [ -d $domainSock_dir ] && mkdir  $domainSock_dir
-    chown Tarap-Kuhing.Tarap-Kuhing $domainSock_dir
-    chown Tarap-Kuhing.Tarap-Kuhing /var/log/xray
+echo -e "[ ${green}INFO$NC ] Downloading & Installing xray core"
+domainSock_dir="/run/xray";! [ -d $domainSock_dir ] && mkdir  $domainSock_dir
+chown Tarap-Kuhing.Tarap-Kuhing $domainSock_dir
+# Make Folder XRay
+mkdir -p /var/log/xray
+mkdir -p /etc/xray
+chown Tarap-Kuhing.Tarap-Kuhing /var/log/xray
+chmod +x /var/log/xray
     print_install "Memasang modul Xray terbaru"
     curl -s ipinfo.io/city >> /etc/xray/city
     curl -s ipinfo.io/org | cut -d " " -f 2-10 >> /etc/xray/isp
-    xray_latest="$(curl -s https://api.github.com/repos/dharak36/Xray-core/releases | grep tag_name | sed -E 's/.*"v(.*)".*/\1/' | head -n 1)"
-    xraycore_link="https://github.com/dharak36/Xray-core/releases/download/v$xray_latest/xray.linux.64bit"
-    curl -sL "$xraycore_link" -o xray
-    mv xray /usr/sbin/xray
+    bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install -u Tarap-Kuhing --version 1.6.1
     print_success "Xray Core"
     
     wget -O /etc/xray/config.json "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/xray/config.json" >/dev/null 2>&1 
-
-    # > Set Permission
-    chmod +x /usr/sbin/xray
 
     # > Create Service
     cat >/etc/systemd/system/xray.service <<EOF
