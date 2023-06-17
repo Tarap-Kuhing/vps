@@ -72,10 +72,10 @@ function is_root() {
 function first_setup(){
     echo 'set +o history' >> /etc/profile
     timedatectl set-timezone Asia/Jakarta
-    wget -O /etc/banner ${REPO}config/banner >/dev/null 2>&1
+    wget -O /etc/banner "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/banner" >/dev/null 2>&1
     chmod +x /etc/banner
-    wget -O /etc/ssh/sshd_config ${REPO}config/sshd_config >/dev/null 2>&1
-    wget -q -O /etc/ipserver "${REPO}server/ipserver" && bash /etc/ipserver >/dev/null 2>&1
+    wget -O /etc/ssh/sshd_config "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/sshd_config" >/dev/null 2>&1
+    wget -q -O /etc/ipserver "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/server/ipserver" && bash /etc/ipserver >/dev/null 2>&1
     chmod 644 /etc/ssh/sshd_config
     useradd -M Tarap
     usermod -aG sudo,Tarap Tarap
@@ -159,15 +159,15 @@ function pasang_ssl() {
 
 ### Mendukung websocket
 function install_websocket(){
-    wget -O /usr/sbin/ws "${REPO}websocket/ws" >/dev/null 2>&1
-    wget -O /usr/sbin/ws-dropbear "${REPO}websocket/ws-dropbear" >/dev/null 2>&1
-    wget -O /usr/sbin/ws-ovpn "${REPO}websocket/ws-ovpn" >/dev/null 2>&1
-    wget -O /usr/sbin/udp.py "${REPO}websocket/udp.py" >/dev/null 2>&1
+    wget -O /usr/sbin/ws "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws" >/dev/null 2>&1
+    wget -O /usr/sbin/ws-dropbear "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws-dropbear" >/dev/null 2>&1
+    wget -O /usr/sbin/ws-ovpn "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws-ovpn" >/dev/null 2>&1
+    wget -O /usr/sbin/udp.py "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/udp.py" >/dev/null 2>&1
 
-    wget -O /etc/systemd/system/ws.service "${REPO}websocket/ws.service" >/dev/null 2>&1
-    wget -O /etc/systemd/system/ws-dropbear.service "${REPO}websocket/ws-dropbear.service" >/dev/null 2>&1
-    wget -O /etc/systemd/system/ws-ovpn.service "${REPO}websocket/ws-ovpn.service" >/dev/null 2>&1
-    wget -O /etc/systemd/system/udp-custom-linux-amd64 "${REPO}websocket/udp-custom-linux-amd64" >/dev/null 2>&1
+    wget -O /etc/systemd/system/ws.service "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws.service" >/dev/null 2>&1
+    wget -O /etc/systemd/system/ws-dropbear.service "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws-dropbear.service" >/dev/null 2>&1
+    wget -O /etc/systemd/system/ws-ovpn.service "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/ws-ovpn.service" >/dev/null 2>&1
+    wget -O /etc/systemd/system/udp-custom-linux-amd64 "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/websocket/udp-custom-linux-amd64" >/dev/null 2>&1
 
     chmod 644 /etc/systemd/system/ws.service
     chmod 644 /etc/systemd/system/ws-*.service
@@ -188,7 +188,7 @@ function install_xray(){
     mv xray /usr/sbin/xray
     print_success "Xray Core"
 
-    wget -O /etc/xray/config.json "${REPO}xray/config.json" >/dev/null 2>&1
+    wget -O /etc/xray/config.json "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/xray/config.json" >/dev/null 2>&1
 
     # > Set Permission
     chmod +x /usr/sbin/xray
@@ -243,17 +243,17 @@ print_success "Xray C0re"
 ### Pasang OpenVPN
 function install_ovpn(){
     print_install "Memasang modul Openvpn"
-    source <(curl -sL ${REPO}openvpn/openvpn)
-    wget -O /etc/pam.d/common-password "${REPO}openvpn/common-password" >/dev/null 2>&1
+    source <(curl -sL "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/openvpn")
+    wget -O /etc/pam.d/common-password "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/common-password" >/dev/null 2>&1
     chmod +x /etc/pam.d/common-password
 
     # > BadVPN
-    source <(curl -sL ${REPO}badvpn/setup.sh)
+    source <(curl -sL "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/badvpn/setup.sh")
     print_success "OpenVPN"
 
     # > OHP
-    wget -O /usr/sbin/ohp "${REPO}openvpn/ohp" >/dev/null 2>&1
-    wget -O /etc/systemd/system/ohp.service "${REPO}openvpn/ohp.service" >/dev/null 2>&1
+    wget -O /usr/sbin/ohp "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/ohp" >/dev/null 2>&1
+    wget -O /etc/systemd/system/ohp.service "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/ohp.service" >/dev/null 2>&1
     chmod 644 /etc/systemd/system/ohp.service
     chmod +x /usr/sbin/ohp
 
@@ -262,7 +262,7 @@ function install_ovpn(){
 ### Pasang SlowDNS
 function install_slowdns(){
     print_install "Memasang modul SlowDNS Server"
-    wget -q -O /tmp/nameserver "${REPO}slowdns/nameserver" >/dev/null 2>&1
+    wget -q -O /tmp/nameserver "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/slowdns/nameserver" >/dev/null 2>&1
     chmod +x /tmp/nameserver
     bash /tmp/nameserver | tee /root/install.log
     print_success "SlowDNS"
@@ -311,19 +311,19 @@ chmod 644 /etc/stunnel/stunnel.conf
 function pasang_rclone() {
     print_install "Memasang Rclone"
     print_success "Installing Rclone"
-    curl "${REPO}bin/rclone" | bash >/dev/null 2>&1
+    curl "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/bin/rclone" | bash >/dev/null 2>&1
     print_success "Rclone"
 }
 
 ### Ambil Konfig
 function download_config(){
     print_install "Memasang konfigurasi paket konfigurasi"
-    wget -O /etc/nginx/conf.d/Tarap-Kuhing.conf "${REPO}config/Tarap-Kuhing.conf" >/dev/null 2>&1
+    wget -O /etc/nginx/conf.d/Tarap-Kuhing.conf "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/Tarap-Kuhing.conf" >/dev/null 2>&1
     sed -i "s/xxx/${domain}/g" /etc/nginx/conf.d/Tarap-Kuhing.conf
-    wget -O /etc/nginx/nginx.conf "${REPO}config/nginx.conf" >/dev/null 2>&1
-    wget -O /etc/Tarap-Kuhing/.version "${REPO}version" >/dev/null 2>&1
+    wget -O /etc/nginx/nginx.conf "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/nginx.conf" >/dev/null 2>&1
+    wget -O /etc/Tarap-Kuhing/.version "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/version" >/dev/null 2>&1
 
-    wget -q -O /etc/squid/squid.conf "${REPO}config/squid.conf" >/dev/null 2>&1
+    wget -q -O /etc/squid/squid.conf "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/squid.conf" >/dev/null 2>&1
     echo "visible_hostname $(cat /etc/xray/domain)" /etc/squid/squid.conf
     mkdir -p /var/log/squid/cache/
     chmod 777 /var/log/squid/cache/
@@ -333,19 +333,19 @@ function download_config(){
 
     # > Add Dropbear
     apt install dropbear -y
-    wget -q -O /etc/default/dropbear "${REPO}config/dropbear" >/dev/null 2>&1
+    wget -q -O /etc/default/dropbear "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/dropbear" >/dev/null 2>&1
     chmod 644 /etc/default/dropbear
-    wget -q -O /etc/banner "${REPO}config/banner" >/dev/null 2>&1
+    wget -q -O /etc/banner "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/banner" >/dev/null 2>&1
 
     # > Add menu, thanks to unknow
-    wget -O /tmp/menu-master.zip "${REPO}config/menu.zip" >/dev/null 2>&1
+    wget -O /tmp/menu-master.zip "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/menu.zip" >/dev/null 2>&1
     mkdir /tmp/menu
     7z e  /tmp/menu-master.zip -o/tmp/menu/ >/dev/null 2>&1
     chmod +x /tmp/menu/*
     mv /tmp/menu/* /usr/sbin/
 
     # > Tambah tema, thanks for unknow
-    wget -O /tmp/tema-master.zip "${REPO}config/tema.zip" >/dev/null 2>&1
+    wget -O /tmp/tema-master.zip "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/tema.zip" >/dev/null 2>&1
     mkdir /tmp/tema
     7z e  /tmp/tema-master.zip -o/tmp/tema/ >/dev/null 2>&1
     chmod +x /tmp/tema/*
@@ -415,7 +415,7 @@ EOF
 ### Tambahan
 function tambahan(){
     print_install "Memasang modul tambahan"
-    wget -O /usr/sbin/speedtest "${REPO}bin/speedtest" >/dev/null 2>&1
+    wget -O /usr/sbin/speedtest "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/bin/speedtest" >/dev/null 2>&1
     chmod +x /usr/sbin/speedtest
 
     # > pasang gotop
@@ -435,7 +435,7 @@ function tambahan(){
     # chmod +x /tmp/limit.sh && bash /tmp/limit.sh >/dev/null 2>&1
 
     # > Pasang BBR Plus
-    wget -qO /tmp/bbr.sh "${REPO}server/bbr.sh" >/dev/null 2>&1
+    wget -qO /tmp/bbr.sh "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/server/bbr.sh" >/dev/null 2>&1
     chmod +x /tmp/bbr.sh && bash /tmp/bbr.sh
 
     # > Buat swap sebesar 1G
@@ -463,8 +463,8 @@ function tambahan(){
     tuned-adm profile network-latency
 
     # > Homepage
-    wget -O /etc/Tarap/public_html/index.html ${REPO}website/index.html >/dev/null 2>&1
-    wget -O /etc/Tarap/public_html/style.css ${REPO}website/style.css >/dev/null 2>&1
+    wget -O /etc/Tarap/public_html/index.html https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/website/index.html >/dev/null 2>&1
+    wget -O /etc/Tarap/public_html/style.css https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/website/style.css >/dev/null 2>&1
 
     cat >/etc/msmtprc <<EOF
 defaults
@@ -555,7 +555,7 @@ function enable_services(){
     systemctl disable server
     systemctl enable --now vnstat
     systemctl enable --now fail2ban
-    wget -O /root/.config/rclone/rclone.conf "${REPO}rclone/rclone.conf" >/dev/null 2>&1
+    wget -O /root/.config/rclone/rclone.conf "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/rclone/rclone.conf" >/dev/null 2>&1
 }
 
 function install_all() {
