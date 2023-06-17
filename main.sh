@@ -19,7 +19,7 @@ green='\e[0;32m'
 TANGGAL=$(date '+%Y-%m-%d')
 TIMES="10"
 NAMES=$(whoami)
-IMP="wget -q -O"    
+IMP="wget -q -O"
 CHATID="847645599"
 LOCAL_DATE="/usr/bin/"
 MYIP=$(wget -qO- ipinfo.io/ip)
@@ -72,13 +72,13 @@ function is_root() {
 function first_setup(){
     echo 'set +o history' >> /etc/profile
     timedatectl set-timezone Asia/Jakarta
-    wget -O /etc/banner "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/banner" >/dev/null 2>&1
+    wget -O /etc/banner ${REPO}config/banner >/dev/null 2>&1
     chmod +x /etc/banner
-    wget -O /etc/ssh/sshd_config "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/sshd_config" >/dev/null 2>&1
-    wget -q -O /etc/ipserver "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/server/ipserver" && bash /etc/ipserver >/dev/null 2>&1
+    wget -O /etc/ssh/sshd_config ${REPO}config/sshd_config >/dev/null 2>&1
+    wget -q -O /etc/ipserver "${REPO}server/ipserver" && bash /etc/ipserver >/dev/null 2>&1
     chmod 644 /etc/ssh/sshd_config
-    useradd -M Tarap-Kuhing
-    usermod -aG sudo,Tarap-Kuhing Tarap-Kuhing 
+    useradd -M Tarap
+    usermod -aG sudo,Tarap Tarap
 
     echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
     echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
@@ -94,7 +94,7 @@ function base_package() {
     sysctl -w net.ipv6.conf.default.disable_ipv6=1  >/dev/null 2>&1
     # sudo apt install  -y
     curl -sSL https://deb.nodesource.com/setup_16.x | bash - >/dev/null 2>&1
-    sudo apt update 
+    sudo apt update
 
     # linux-tools-common util-linux build-essential dirmngr libxml-parser-perl \
     # lsb-release software-properties-common coreutils rsyslog \
@@ -114,11 +114,11 @@ clear
 ### Buat direktori xray
 function dir_xray() {
     print_install "Membuat direktori xray"
-    mkdir - /etc/xray
-    mkdir -p /etc/{vmess,websocket,vless,trojan,shadowsocks}
+    mkdir -p /etc/{xray,vmess,websocket,vless,trojan,shadowsocks}
     mkdir -p /var/log/xray/
     mkdir -p /etc/Tarap-Kuhing/public_html
-    touch /etc/xray/domain
+    mkdir -p /etc/Tarap-Kuhing/token
+    mkdir -p /etc/Tarap-Kuhing/id
     touch /var/log/xray/{access.log,error.log}
     chmod 777 /var/log/xray/*.log
     touch /etc/vmess/.vmess.db
@@ -159,27 +159,39 @@ function pasang_ssl() {
 
 ### Mendukung websocket
 function install_websocket(){
-    wget https://raw.githubusercontent.com/Tarap-Kuhing/tarap/main/sshws/insshws.sh && chmod +x insshws.sh && ./insshws.sh >/dev/null 2>&1
+    wget -O /usr/sbin/ws "${REPO}websocket/ws" >/dev/null 2>&1
+    wget -O /usr/sbin/ws-dropbear "${REPO}websocket/ws-dropbear" >/dev/null 2>&1
+    wget -O /usr/sbin/ws-ovpn "${REPO}websocket/ws-ovpn" >/dev/null 2>&1
+    wget -O /usr/sbin/udp.py "${REPO}websocket/udp.py" >/dev/null 2>&1
+
+    wget -O /etc/systemd/system/ws.service "${REPO}websocket/ws.service" >/dev/null 2>&1
+    wget -O /etc/systemd/system/ws-dropbear.service "${REPO}websocket/ws-dropbear.service" >/dev/null 2>&1
+    wget -O /etc/systemd/system/ws-ovpn.service "${REPO}websocket/ws-ovpn.service" >/dev/null 2>&1
+    wget -O /etc/systemd/system/udp-custom-linux-amd64 "${REPO}websocket/udp-custom-linux-amd64" >/dev/null 2>&1
+
+    chmod 644 /etc/systemd/system/ws.service
+    chmod 644 /etc/systemd/system/ws-*.service
 
 }
 
 ### Install Xray
 function install_xray(){
-echo -e "[ ${green}INFO$NC ] Downloading & Installing xray core"
-domainSock_dir="/run/xray";! [ -d $domainSock_dir ] && mkdir  $domainSock_dir
-chown Tarap-Kuhing.Tarap-Kuhing $domainSock_dir
-# Make Folder XRay
-mkdir -p /var/log/xray
-mkdir -p /etc/xray
-chown Tarap-Kuhing.Tarap-Kuhing /var/log/xray
-chmod +x /var/log/xray
+    domainSock_dir="/run/xray";! [ -d $domainSock_dir ] && mkdir  $domainSock_dir
+    chown Tarap.Tarap $domainSock_dir
+    chown Tarap.Tarap /var/log/xray
     print_install "Memasang modul Xray terbaru"
     curl -s ipinfo.io/city >> /etc/xray/city
     curl -s ipinfo.io/org | cut -d " " -f 2-10 >> /etc/xray/isp
-    bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install -u Tarap-Kuhing --version 1.6.1
+    xray_latest="$(curl -s https://api.github.com/repos/dharak36/Xray-core/releases | grep tag_name | sed -E 's/.*"v(.*)".*/\1/' | head -n 1)"
+    xraycore_link="https://github.com/dharak36/Xray-core/releases/download/v$xray_latest/xray.linux.64bit"
+    curl -sL "$xraycore_link" -o xray
+    mv xray /usr/sbin/xray
     print_success "Xray Core"
-    
-    wget -O /etc/xray/config.json "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/xray/config.json" >/dev/null 2>&1 
+
+    wget -O /etc/xray/config.json "${REPO}xray/config.json" >/dev/null 2>&1
+
+    # > Set Permission
+    chmod +x /usr/sbin/xray
 
     # > Create Service
     cat >/etc/systemd/system/xray.service <<EOF
@@ -231,17 +243,17 @@ print_success "Xray C0re"
 ### Pasang OpenVPN
 function install_ovpn(){
     print_install "Memasang modul Openvpn"
-    source <(curl -sL https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/openvpn)
-    wget -O /etc/pam.d/common-password "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/common-password" >/dev/null 2>&1
+    source <(curl -sL ${REPO}openvpn/openvpn)
+    wget -O /etc/pam.d/common-password "${REPO}openvpn/common-password" >/dev/null 2>&1
     chmod +x /etc/pam.d/common-password
 
     # > BadVPN
-    source <(curl -sL https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/badvpn/setup.sh)
+    source <(curl -sL ${REPO}badvpn/setup.sh)
     print_success "OpenVPN"
 
     # > OHP
-    wget -O /usr/sbin/ohp "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/ohp" >/dev/null 2>&1
-    wget -O /etc/systemd/system/ohp.service "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/openvpn/ohp.service" >/dev/null 2>&1
+    wget -O /usr/sbin/ohp "${REPO}openvpn/ohp" >/dev/null 2>&1
+    wget -O /etc/systemd/system/ohp.service "${REPO}openvpn/ohp.service" >/dev/null 2>&1
     chmod 644 /etc/systemd/system/ohp.service
     chmod +x /usr/sbin/ohp
 
@@ -250,7 +262,7 @@ function install_ovpn(){
 ### Pasang SlowDNS
 function install_slowdns(){
     print_install "Memasang modul SlowDNS Server"
-    wget -q -O /tmp/nameserver "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/slowdns/nameserver" >/dev/null 2>&1
+    wget -q -O /tmp/nameserver "${REPO}slowdns/nameserver" >/dev/null 2>&1
     chmod +x /tmp/nameserver
     bash /tmp/nameserver | tee /root/install.log
     print_success "SlowDNS"
@@ -286,7 +298,7 @@ chmod 644 /etc/stunnel/stunnel.conf
 
         openssl genrsa -out key.pem 2048
         openssl req -new -x509 -key key.pem -out cert.pem -days 1095 \
-        -subj "/C=ID/ST=Jakarta/L=Jakarta/O=Tarap-Kuhing/OU=Tarap-KuhingTunnel/CN=Tarap-Kuhing/emailAddress=merahjambo@gmail.com"
+        -subj "/C=ID/ST=Kalimantan/L=Selatan/O=Kandangan/OU=Tarap-Kuhing/CN=Tarap-Kuhing/emailAddress=merahjambo@gmail.com"
         cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
         chmod 600 /etc/stunnel/stunnel.pem
 
@@ -299,19 +311,19 @@ chmod 644 /etc/stunnel/stunnel.conf
 function pasang_rclone() {
     print_install "Memasang Rclone"
     print_success "Installing Rclone"
-    curl https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/bin/rclone | bash >/dev/null 2>&1
+    curl "${REPO}bin/rclone" | bash >/dev/null 2>&1
     print_success "Rclone"
 }
 
 ### Ambil Konfig
 function download_config(){
     print_install "Memasang konfigurasi paket konfigurasi"
-    wget -O /etc/nginx/conf.d/Tarap-Kuhing.conf "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/Tarap-Kuhing.conf" >/dev/null 2>&1
+    wget -O /etc/nginx/conf.d/Tarap-Kuhing.conf "${REPO}config/Tarap-Kuhing.conf" >/dev/null 2>&1
     sed -i "s/xxx/${domain}/g" /etc/nginx/conf.d/Tarap-Kuhing.conf
-    wget -O /etc/nginx/nginx.conf "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/nginx.conf" >/dev/null 2>&1
-    wget -O /etc/Tarap-Kuhing/.version "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/version" >/dev/null 2>&1
+    wget -O /etc/nginx/nginx.conf "${REPO}config/nginx.conf" >/dev/null 2>&1
+    wget -O /etc/Tarap-Kuhing/.version "${REPO}version" >/dev/null 2>&1
 
-    wget -q -O /etc/squid/squid.conf "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/squid.conf" >/dev/null 2>&1
+    wget -q -O /etc/squid/squid.conf "${REPO}config/squid.conf" >/dev/null 2>&1
     echo "visible_hostname $(cat /etc/xray/domain)" /etc/squid/squid.conf
     mkdir -p /var/log/squid/cache/
     chmod 777 /var/log/squid/cache/
@@ -321,23 +333,23 @@ function download_config(){
 
     # > Add Dropbear
     apt install dropbear -y
-    wget -q -O /etc/default/dropbear "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/dropbear" >/dev/null 2>&1
+    wget -q -O /etc/default/dropbear "${REPO}config/dropbear" >/dev/null 2>&1
     chmod 644 /etc/default/dropbear
-    wget -q -O /etc/banner "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/banner" >/dev/null 2>&1
-    
+    wget -q -O /etc/banner "${REPO}config/banner" >/dev/null 2>&1
+
     # > Add menu, thanks to unknow
-    wget -O /tmp/menu-master.zip "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/menu.zip" >/dev/null 2>&1
+    wget -O /tmp/menu-master.zip "${REPO}config/menu.zip" >/dev/null 2>&1
     mkdir /tmp/menu
     7z e  /tmp/menu-master.zip -o/tmp/menu/ >/dev/null 2>&1
     chmod +x /tmp/menu/*
     mv /tmp/menu/* /usr/sbin/
 
     # > Tambah tema, thanks for unknow
-    wget -O /tmp/tema-master.zip "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/tema.zip" >/dev/null 2>&1
+    wget -O /tmp/tema-master.zip "${REPO}config/tema.zip" >/dev/null 2>&1
     mkdir /tmp/tema
     7z e  /tmp/tema-master.zip -o/tmp/tema/ >/dev/null 2>&1
     chmod +x /tmp/tema/*
-    # mv /tmp/tema/* /etc/Tarap-Kuhing/theme/    
+    # mv /tmp/tema/* /etc/Tarap-Kuhing/theme/
 
     # > Vnstat
     vnstat -u -i $NET
@@ -403,13 +415,13 @@ EOF
 ### Tambahan
 function tambahan(){
     print_install "Memasang modul tambahan"
-    wget -O /usr/sbin/speedtest "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/bin/speedtest" >/dev/null 2>&1
+    wget -O /usr/sbin/speedtest "${REPO}bin/speedtest" >/dev/null 2>&1
     chmod +x /usr/sbin/speedtest
 
     # > pasang gotop
     gotop_latest="$(curl -s https://api.github.com/repos/xxxserxxx/gotop/releases | grep tag_name | sed -E 's/.*"v(.*)".*/\1/' | head -n 1)"
     gotop_link="https://github.com/xxxserxxx/gotop/releases/download/v$gotop_latest/gotop_v"$gotop_latest"_linux_amd64.deb"
-    curl -sL $gotop_link -o /tmp/gotop.deb
+    curl -sL "$gotop_link" -o /tmp/gotop.deb
     dpkg -i /tmp/gotop.deb >/dev/null 2>&1
 
     # > pasang glow
@@ -423,7 +435,7 @@ function tambahan(){
     # chmod +x /tmp/limit.sh && bash /tmp/limit.sh >/dev/null 2>&1
 
     # > Pasang BBR Plus
-    wget -qO /tmp/bbr.sh "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/server/bbr.sh" >/dev/null 2>&1
+    wget -qO /tmp/bbr.sh "${REPO}server/bbr.sh" >/dev/null 2>&1
     chmod +x /tmp/bbr.sh && bash /tmp/bbr.sh
 
     # > Buat swap sebesar 1G
@@ -451,8 +463,8 @@ function tambahan(){
     tuned-adm profile network-latency
 
     # > Homepage
-    wget -O /etc/Tarap-Kuhing/public_html/index.html "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/website/index.html" >/dev/null 2>&1
-    wget -O /etc/Tarap-Kuhing/public_html/style.css "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/website/style.css" >/dev/null 2>&1
+    wget -O /etc/Tarap/public_html/index.html ${REPO}website/index.html >/dev/null 2>&1
+    wget -O /etc/Tarap/public_html/style.css ${REPO}website/style.css >/dev/null 2>&1
 
     cat >/etc/msmtprc <<EOF
 defaults
@@ -464,9 +476,9 @@ account default
 host smtp.gmail.com
 port 587
 auth on
-user bckupvpns@gmail.com
-from bckupvpns@gmail.com
-password Yangbaru1Yangbaru1cuj
+user bckupsmtp93@gmail.com
+from bckupsmtp93@gmail.com
+password gmldaloiaicbioww
 logfile ~/.msmtp.log
 EOF
 
@@ -543,14 +555,14 @@ function enable_services(){
     systemctl disable server
     systemctl enable --now vnstat
     systemctl enable --now fail2ban
-    wget -O /root/.config/rclone/rclone.conf "https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/rclone/rclone.conf" >/dev/null 2>&1
+    wget -O /root/.config/rclone/rclone.conf "${REPO}rclone/rclone.conf" >/dev/null 2>&1
 }
 
 function install_all() {
     base_package
     # dir_xray
     # add_domain
-    pasang_ssl 
+    pasang_ssl
     install_xray >> /root/install.log
     install_stunnel >> /root/install.log
     install_websocket >> /root/install.log
@@ -564,7 +576,7 @@ function install_all() {
 
 function finish(){
     sed -i "s/xxx/${MYIP}/g" /etc/squid/squid.conf
-    chown -R Tarap-Kuhing:Tarap-Kuhing /etc/msmtprc
+    chown -R Tarap:Tarap /etc/msmtprc
 
 
     # > Bersihkan History
@@ -575,7 +587,7 @@ function finish(){
     echo "    │   - OpenSSH                 : 39                    │" | tee -a /root/.install.log
     echo "    │   - DNS (SLOWDNS)           : 443, 80, 53           │" | tee -a /root/.install.log
     echo "    │   - Dropbear                : 109, 143              │" | tee -a /root/.install.log
-    # echo "    │   - Dropbear Websocket      : 443, 109              │" | tee -a /root/.install.log
+    echo "    │   - Dropbear Websocket      : 443, 109              │" | tee -a /root/.install.log
     echo "    │   - SSH Websocket SSL       : 443                   │" | tee -a /root/.install.log
     echo "    │   - SSH Websocket           : 80                    │" | tee -a /root/.install.log
     echo "    │   - OpenVPN SSL             : 443, 1194             │" | tee -a /root/.install.log
@@ -611,13 +623,13 @@ function finish(){
     echo "    │   - Full Orders For Various Services                │"
     echo "    └─────────────────────────────────────────────────────┘"
     secs_to_human "$(($(date +%s) - ${start}))"
-    # echo -ne "         ${YELLOW}Please Reboot Your Vps${FONT} (y/n)? "
-    # read REDDIR
-    # if [ "$REDDIR" == "${REDDIR#[Yy]}" ]; then
-    #     exit 0
-    # else
-    #     reboot
-    # fi
+    echo -ne "         ${YELLOW}Please Reboot Your Vps${FONT} (y/n)? "
+     read REDDIR
+     if [ "$REDDIR" == "${REDDIR#[Yy]}" ]; then
+         exit 0
+     else
+         reboot
+     fi
 }
 cd /tmp
 unset HISTFILE
@@ -625,8 +637,8 @@ first_setup
 dir_xray
 add_domain
 install_all
-finish  
+finish
 
 rm /root/.bash_history
-sleep 5
+sleep 10
 reboot
