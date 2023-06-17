@@ -241,7 +241,7 @@ chmod 600 /root/.ssh/authorized_keys2
 sleep 1
 mkdir -p /root/.config/rclone/
 cat > /root/.config/rclone/rclone.conf <<EOF
-[cendrawasih]
+[tarap]
 type = drive
 scope = drive
 team_drive = 0AL4IDbuID-syUk9PVA
