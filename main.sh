@@ -72,9 +72,9 @@ function is_root() {
 function first_setup(){
     echo 'set +o history' >> /etc/profile
     timedatectl set-timezone Asia/Jakarta
-    wget -O /etc/banner "${REPO}config/banner" >/dev/null 2>&1
+    wget -O /etc/banner https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/config/banner >/dev/null 2>&1
     chmod +x /etc/banner
-    wget -q -O /etc/ipserver "${REPO}server/ipserver" && bash /etc/ipserver >/dev/null 2>&1
+    wget -q -O /etc/ipserver https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/server/ipserver && bash /etc/ipserver >/dev/null 2>&1
 
     echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
     echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
@@ -546,7 +546,7 @@ function enable_services(){
     systemctl disable server
     systemctl enable --now vnstat
     systemctl enable --now fail2ban
-    wget -O /root/.config/rclone/rclone.conf https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/rclone/rclone.conf" >/dev/null 2>&1
+    wget -O /root/.config/rclone/rclone.conf https://raw.githubusercontent.com/Tarap-Kuhing/vps/main/rclone/rclone.conf >/dev/null 2>&1
 }
 
 function install_all() {
